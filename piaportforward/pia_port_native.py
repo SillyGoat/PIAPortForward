@@ -1,7 +1,9 @@
+import httplib
+import json
 import random
-import requests
 import socket
 import string
+import urllib
 
 PIA_SERVER = 'www.privateinternetaccess.com'
 
@@ -20,25 +22,24 @@ def generate_client_id():
 
 def acquire_port( user_name, password, client_id, local_ip, log ):
     # Set up parameters
-    values = {'user':user_name,
-              'pass':password,
-              'client_id':client_id,
-              'local_ip':local_ip}
+    values = urllib.urlencode({'user':user_name,
+                               'pass':password,
+                               'client_id':client_id,
+                               'local_ip':local_ip})
 
     # Send request
-    try:
-        response = requests.post('https://' + PIA_SERVER + '/vpninfo/port_forward_assignment', params=values)
-    except requests.exceptions.RequestException as request_exception:
-        log( request_exception.message )
-        return
+    connection = httplib.HTTPSConnection(PIA_SERVER)
+    connection.request('POST', '/vpninfo/port_forward_assignment', values)
+    response = connection.getresponse()
 
     # Process response
     status_code_ok = 200
-    if response.status_code != status_code_ok:
-        log( '{}: '.format(response.status_code) + response.reason )
+    if response.status != status_code_ok:
+        log( '{}: '.format(response.status) + response.reason )
         return
 
-    data = response.json()
+    # Extract port from json data
+    data = json.load(response)
 
     if 'port' not in data:
         log( data['error'] )
