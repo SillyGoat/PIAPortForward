@@ -31,20 +31,91 @@ Copyright:
     statement from all source files in the program, then also delete it here.
 */
 
-PIAPortForwardPlugin = Ext.extend(Deluge.Plugin, {
-	constructor: function(config) {
-		config = Ext.apply({
-			name: "PIAPortForward"
-		}, config);
-		PIAPortForwardPlugin.superclass.constructor.call(this, config);
-	},
+Ext.ns('Deluge.ux.preferences');
 
-	onDisable: function() {
+/**
+ * @class Deluge.ux.preferences.PIAPortForwardPage
+ * @extends Ext.Panel
+ */
+Deluge.ux.preferences.PIAPortForwardPage = Ext.extend(Ext.Panel, {
 
-	},
+    title: _('PIAPortForward'),
+    layout: 'fit',
+    border: false,
 
-	onEnable: function() {
+    initComponent: function () {
+        Deluge.ux.preferences.PIAPortForwardPage.superclass.initComponent.call(this);
 
-	}
+        this.form = this.add({
+            xtype: 'form',
+            layout: 'form',
+            border: false,
+            autoHeight: true
+        });
+
+        fieldset = this.form.add({
+            xtype: 'fieldset',
+            border: false,
+            title: '',
+            autoHeight: true,
+            labelAlign: 'top',
+            labelWidth: 80,
+            defaultType: 'textfield'
+        });
+
+        this.username = fieldset.add({
+            fieldLabel: _('Username:'),
+            labelSeparator: '',
+            name: 'username',
+            width: '97%'
+        });
+
+        this.password = fieldset.add({
+            fieldLabel: _('Password:'),
+            labelSeparator: '',
+            name: 'password',
+            width: '97%'
+        });
+
+        this.on('show', this.updateConfig, this);
+    },
+
+    onApply: function () {
+        // build settings object
+        var config = {}
+
+        config['pia_username'] = this.username.getValue();
+        config['pia_password'] = this.password.getValue();
+
+        deluge.client.piaportforward.set_config(config);
+    },
+
+    onOk: function () {
+        this.onApply();
+    },
+
+    updateConfig: function () {
+        deluge.client.piaportforward.get_config({
+            success: function (config) {
+                this.username.setValue(config['pia_username']);
+                this.password.setValue(config['pia_password']);
+            },
+            scope: this
+        });
+    }
 });
-new PIAPortForwardPlugin();
+
+
+Deluge.plugins.PIAPortForwardPlugin = Ext.extend(Deluge.Plugin, {
+
+    name: 'PIAPortForward',
+
+    onDisable: function () {
+        deluge.preferences.removePage(this.prefsPage);
+    },
+
+    onEnable: function () {
+        this.prefsPage = deluge.preferences.addPage(new Deluge.ux.preferences.PIAPortForwardPage());
+    }
+});
+Deluge.registerPlugin('PIAPortForward', Deluge.plugins.PIAPortForwardPlugin);

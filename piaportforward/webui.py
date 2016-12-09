@@ -37,9 +37,6 @@
 #    statement from all source files in the program, then also delete it here.
 #
 
-from deluge.log import LOG as log
-from deluge.ui.client import client
-from deluge import component
 from deluge.plugins.pluginbase import WebPluginBase
 
 from common import get_resource

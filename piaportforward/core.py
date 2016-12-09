@@ -47,14 +47,21 @@ from twisted.internet.task import LoopingCall
 import pia_port
 
 DEFAULT_PREFS = {
-    'pia_username':'',
-    'pia_password':'',
+    'pia_username': '',
+    'pia_password': '',
 }
 
+
 class Core(CorePluginBase):
+    def __init__(self):
+        self.successfully_acquired_port = False
+        self.pia_username = ''
+        self.pia_password = ''
+
     def enable(self):
-        log.info( 'Enabling' )
-        self.config = deluge.configmanager.ConfigManager('piaportforward.conf', DEFAULT_PREFS)
+        log.info('Enabling')
+        self.config = deluge.configmanager.ConfigManager(
+            'piaportforward.conf', DEFAULT_PREFS)
         self.pia_username = self.config['pia_username']
         self.pia_password = self.config['pia_password']
         self.pia_client_id = pia_port.generate_client_id()
@@ -70,7 +77,7 @@ class Core(CorePluginBase):
         self.update_status_slow_timer.start(time_in_sec_interval)
 
     def disable(self):
-        log.info( 'Disabling' )
+        log.info('Disabling')
         self.update_status_fast_timer.stop()
         self.update_status_slow_timer.stop()
 
@@ -82,33 +89,33 @@ class Core(CorePluginBase):
 
     def slow_check(self):
         if self.successfully_acquired_port:
-            log.info( 'Slow port refresh' )
+            log.info('Slow port refresh')
             self.refresh_connection()
 
     def fast_check(self):
         if not self.successfully_acquired_port:
-            log.info( 'Fast port refresh' )
+            log.info('Fast port refresh')
             self.refresh_connection()
 
     def refresh_connection(self):
-        log.info( 'Refreshing listening port...' )
+        log.info('Refreshing listening port...')
         local_ip = pia_port.get_active_local_ip()
         if not local_ip.startswith('10.'):
-            log.info( 'Not a VPN local IP' )
+            log.info('Not a VPN local IP')
             return
 
         core = component.get('Core')
         previous_listen_port = core.get_listen_port()
-        log.info( 'Current listening port: {}'.format(previous_listen_port) )
+        log.info('Current listening port: {}'.format(previous_listen_port))
 
-        def acquire_port( is_open ):
+        def acquire_port(is_open):
             ''' Callback after test_listen_port is complete '''
             if is_open:
-                log.info( 'port is open' )
+                log.info('port is open')
                 self.successfully_acquired_port = True
                 return
 
-            log.info( 'port is not open' )
+            log.info('port is not open')
             self.successfully_acquired_port = False
             self.pia_username = self.config['pia_username']
             self.pia_password = self.config['pia_password']
@@ -116,20 +123,21 @@ class Core(CorePluginBase):
                                              self.pia_password,
                                              self.pia_client_id,
                                              local_ip,
-                                             log.info )
+                                             log.info)
             if new_port is None:
-                log.info( 'Failed to acquire port' )
+                log.info('Failed to acquire port')
                 return
 
             if new_port == previous_listen_port:
-                log.info( 'Something wrong with the port forward.  Same port as the previous.' )
+                log.info(
+                    'Something wrong with the port forward.  Same port as the previous.')
                 return
 
             core.set_config({'random_port': False})
             core.set_config({'listen_ports': [new_port, new_port]})
-            log.info( 'Config successfully changed' )
+            log.info('Config successfully changed')
 
-        core.test_listen_port().addCallback( acquire_port )
+        core.test_listen_port().addCallback(acquire_port)
 
     @export
     def set_config(self, config):
