@@ -26,7 +26,6 @@
     <Compile Include="piaportforward\common.py" />
     <Compile Include="piaportforward\core.py" />
     <Compile Include="piaportforward\gtkui.py" />
-    <Compile Include="piaportforward\pia_port.py" />
     <Compile Include="piaportforward\pia_port_native.py" />
     <Compile Include="piaportforward\pia_port_requests.py" />
     <Compile Include="piaportforward\webui.py" />
