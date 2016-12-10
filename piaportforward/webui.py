@@ -1,3 +1,4 @@
+''' WebUI module '''
 #
 # webui.py
 #
@@ -39,10 +40,10 @@
 
 from deluge.plugins.pluginbase import WebPluginBase
 
-from common import get_resource
+from piaportforward.common import get_resource
 
 class WebUI(WebPluginBase):
-
+    ''' WebUI module '''
     scripts = [get_resource("piaportforward.js")]
 
     def enable(self):

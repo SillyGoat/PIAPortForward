@@ -1,3 +1,4 @@
+''' GTK UI module '''
 #
 # gtkui.py
 #
@@ -43,24 +44,29 @@ from deluge.log import LOG as log
 from deluge.ui.client import client
 from deluge.plugins.pluginbase import GtkPluginBase
 import deluge.component as component
-import deluge.common
 
-from common import get_resource
+from piaportforward.common import get_resource
 
 class GtkUI(GtkPluginBase):
-    def enable(self):
+    ''' GtkUI module '''
+    def __init__(self, plugin_name):
+        super(GtkUI, self).__init__(plugin_name)
         self.glade = gtk.glade.XML(get_resource('config.glade'))
 
+    def enable(self):
+        ''' enable '''
         component.get('Preferences').add_page('PIAPortForward', self.glade.get_widget('prefs_box'))
         component.get('PluginManager').register_hook('on_apply_prefs', self.on_apply_prefs)
         component.get('PluginManager').register_hook('on_show_prefs', self.on_show_prefs)
 
     def disable(self):
+        ''' disable '''
         component.get('Preferences').remove_page('PIAPortForward')
         component.get('PluginManager').deregister_hook('on_apply_prefs', self.on_apply_prefs)
         component.get('PluginManager').deregister_hook('on_show_prefs', self.on_show_prefs)
 
     def on_apply_prefs(self):
+        ''' apply_prefs event handler '''
         log.debug('applying prefs for PIAPortForward')
         config = {
             'pia_username':self.glade.get_widget('txt_pia_username').get_text(),
@@ -70,9 +76,10 @@ class GtkUI(GtkPluginBase):
         client.piaportforward.set_config(config)
 
     def on_show_prefs(self):
+        ''' show_prefs event handler '''
         client.piaportforward.get_config().addCallback(self.cb_get_config)
 
     def cb_get_config(self, config):
-        'callback for on show_prefs'
+        ''' callback for on show_prefs '''
         self.glade.get_widget('txt_pia_username').set_text(config['pia_username'])
         self.glade.get_widget('txt_pia_password').set_text(config['pia_password'])

@@ -1,3 +1,4 @@
+''' Plugin registration '''
 #
 # __init__.py
 #
@@ -40,19 +41,22 @@
 from deluge.plugins.init import PluginInitBase
 
 class CorePlugin(PluginInitBase):
+    ''' Plugin for PIA logic '''
     def __init__(self, plugin_name):
-        from core import Core as _plugin_cls
+        from piaportforward.core import Core as _plugin_cls
         self._plugin_cls = _plugin_cls
         super(CorePlugin, self).__init__(plugin_name)
 
 class GtkUIPlugin(PluginInitBase):
+    ''' Plugin for the GTK UI '''
     def __init__(self, plugin_name):
-        from gtkui import GtkUI as _plugin_cls
+        from piaportforward.gtkui import GtkUI as _plugin_cls
         self._plugin_cls = _plugin_cls
         super(GtkUIPlugin, self).__init__(plugin_name)
 
 class WebUIPlugin(PluginInitBase):
+    ''' Plugin for the WebUI '''
     def __init__(self, plugin_name):
-        from webui import WebUI as _plugin_cls
+        from piaportforward.webui import WebUI as _plugin_cls
         self._plugin_cls = _plugin_cls
         super(WebUIPlugin, self).__init__(plugin_name)

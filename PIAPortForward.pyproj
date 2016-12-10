@@ -6,7 +6,7 @@
     <ProjectGuid>{735cf90a-c202-4900-83b7-98052a133b44}</ProjectGuid>
     <ProjectHome>.\</ProjectHome>
     <StartupFile>setup.py</StartupFile>
-    <SearchPath />
+    <SearchPath>..\deluge\</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>

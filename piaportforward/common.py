@@ -1,3 +1,4 @@
+''' Package Resource '''
 #
 # common.py
 #
@@ -38,5 +39,7 @@
 #
 
 def get_resource(filename):
-    import pkg_resources, os
+    ''' Setup resource '''
+    import pkg_resources
+    import os
     return pkg_resources.resource_filename("piaportforward", os.path.join("data", filename))

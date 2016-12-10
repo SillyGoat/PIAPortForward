@@ -1,3 +1,4 @@
+''' PIA port request module using native python modules '''
 import httplib
 import json
 import random
@@ -7,9 +8,8 @@ import urllib
 
 PIA_SERVER = 'www.privateinternetaccess.com'
 
-
 def get_active_local_ip():
-    # Get active local IP
+    ''' Get active local IP '''
     tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         tcp_socket.connect((PIA_SERVER, 0))
@@ -19,11 +19,12 @@ def get_active_local_ip():
 
 
 def generate_client_id():
-    # Generate client ID
+    ''' Generate client ID '''
     return ''.join(random.choice(string.hexdigits) for char in xrange(32)).lower()
 
 
 def acquire_port(user_name, password, client_id, local_ip, log):
+    ''' Send http request to retrieve listening port '''
     # Set up parameters
     values = urllib.urlencode({'user': user_name,
                                'pass': password,

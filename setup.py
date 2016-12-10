@@ -1,3 +1,4 @@
+''' Build script '''
 #
 # setup.py
 #

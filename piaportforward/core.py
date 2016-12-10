@@ -1,3 +1,4 @@
+''' Main module '''
 #
 # core.py
 #
@@ -44,7 +45,7 @@ import deluge.configmanager
 from deluge.core.rpcserver import export
 from twisted.internet.task import LoopingCall
 
-import pia_port
+import piaportforward.pia_port_native as pia_port
 
 DEFAULT_PREFS = {
     'pia_username': '',
@@ -53,31 +54,35 @@ DEFAULT_PREFS = {
 
 
 class Core(CorePluginBase):
+    ''' Core module '''
     def __init__(self, plugin_name):
         super(Core, self).__init__(plugin_name)
-        self.successfully_acquired_port = False
-        self.pia_username = ''
-        self.pia_password = ''
-
-    def enable(self):
-        log.info('Enabling')
         self.config = deluge.configmanager.ConfigManager(
             'piaportforward.conf', DEFAULT_PREFS)
-        self.pia_username = self.config['pia_username']
-        self.pia_password = self.config['pia_password']
         self.pia_client_id = pia_port.generate_client_id()
-
+        self.pia_username = ''
+        self.pia_password = ''
         self.successfully_acquired_port = False
 
         self.update_status_fast_timer = LoopingCall(self.fast_check)
+        self.update_status_slow_timer = LoopingCall(self.slow_check)
+
+    def enable(self):
+        ''' enable '''
+        log.info('Enabling')
+        self.pia_username = self.config['pia_username']
+        self.pia_password = self.config['pia_password']
+
+        self.successfully_acquired_port = False
+
         time_in_sec_interval = 5
         self.update_status_fast_timer.start(time_in_sec_interval)
 
-        self.update_status_slow_timer = LoopingCall(self.slow_check)
         time_in_sec_interval = 3600
         self.update_status_slow_timer.start(time_in_sec_interval)
 
     def disable(self):
+        ''' disable '''
         log.info('Disabling')
         self.update_status_fast_timer.stop()
         self.update_status_slow_timer.stop()
@@ -86,19 +91,30 @@ class Core(CorePluginBase):
         self.config['pia_password'] = self.pia_password
 
     def update(self):
+        ''' update '''
         pass
 
     def slow_check(self):
+        '''
+        callback routine to check the VPN server
+        periodically just in case the VPN server
+        expires our port request
+        '''
         if self.successfully_acquired_port:
             log.info('Slow port refresh')
             self.refresh_connection()
 
     def fast_check(self):
+        '''
+        callback routine to check the VPN server
+        for an open port frequently
+        '''
         if not self.successfully_acquired_port:
             log.info('Fast port refresh')
             self.refresh_connection()
 
     def refresh_connection(self):
+        ''' routine to request an open listening port '''
         log.info('Refreshing listening port...')
         local_ip = pia_port.get_active_local_ip()
         if not local_ip.startswith('10.'):
@@ -142,12 +158,12 @@ class Core(CorePluginBase):
 
     @export
     def set_config(self, config):
-        '''Sets the config dictionary'''
+        ''' Sets the config dictionary '''
         for key in config.keys():
             self.config[key] = config[key]
         self.config.save()
 
     @export
     def get_config(self):
-        '''Returns the config dictionary'''
+        ''' Returns the config dictionary '''
         return self.config.config
