@@ -42,7 +42,7 @@ from setuptools import setup
 __plugin_name__ = "PIAPortForward"
 __author__ = "Lee Nguyen"
 __author_email__ = "fake.me.now.and.forever@gmail.com"
-__version__ = "1.1"
+__version__ = "1.1.1"
 __url__ = "https://github.com/SillyGoat/PIAPortForward"
 __license__ = "GPLv3"
 __description__ = "Opens listening port on PIA VPN Server"

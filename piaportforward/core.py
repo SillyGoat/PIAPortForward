@@ -53,7 +53,8 @@ DEFAULT_PREFS = {
 
 
 class Core(CorePluginBase):
-    def __init__(self):
+    def __init__(self, plugin_name):
+        super(Core, self).__init__(plugin_name)
         self.successfully_acquired_port = False
         self.pia_username = ''
         self.pia_password = ''
